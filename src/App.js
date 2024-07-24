@@ -10,8 +10,7 @@ import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import LogoutPage from './pages/LogoutPage';
-
-
+import Explore from './pages/Explore'; // Import the Explore component
 
 function App() {
   return (
@@ -26,12 +25,11 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/logout" element={<LogoutPage />} />
-            
+            <Route path="/explore" element={<Explore />} /> {/* Add route for Explore */}
           </Routes>
         </main>
       </div>
     </Router>
   );
 }
-
 export default App;

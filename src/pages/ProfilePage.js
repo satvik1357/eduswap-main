@@ -6,8 +6,8 @@ import logo from '../images/logo.jpg'; // Update the path to your logo
 const ProfilePage = () => {
   // Dummy profile data
   const profile = {
-    name: 'John Doe',
-    title: 'Software Engineer',
+    name: 'Irfan',
+    title: 'Btech 3rd Year',
     skills: ['JavaScript', 'React', 'Node.js'],
     experience: [
       { role: 'Frontend Developer', company: 'Company A', duration: 'Jan 2020 - Dec 2022' },
@@ -24,10 +24,11 @@ const ProfilePage = () => {
     <div className="profile-page">
       <nav className="navbar">
         <div className="navbar-brand">
-          <Link to="/">SkillSwap</Link>
+          <Link to="/">EduSwap</Link>
         </div>
         <ul className="navbar-nav">
           <li><Link to="/dashboard">Dashboard</Link></li>
+          <li><Link to="/explore">Explore</Link></li>
           <li><Link to="/profile">Profile</Link></li>
           <li><Link to="/settings">Settings</Link></li>
           <li><Link to="/logout">Logout</Link></li>
