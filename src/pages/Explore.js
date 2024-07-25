@@ -1,74 +1,169 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import '../styles/Dashboard.css'; // Ensure you have this CSS file
+import '../styles/Explore.css';
+import defaultProfileImage from '../images/default-profile.png';
 
-const images = [
-  '/images/EduSwap.png', // Replace with your image URLs
-  '/images/image1.png',
-  '/images/image.png',
+// Dummy data for demonstration
+const profiles = [
+  {
+    name: 'Ajay Kumar',
+    role: '3rd year',
+    skills: ['Java', 'Python', 'Front-end Development'],
+    projects: 2,
+    certifications: ['Certified React Developer', 'JavaScript Mastery'],
+    rating: 4.9,
+    image: defaultProfileImage,
+    rate: 75,
+  },
+  {
+    name: 'irfan Shaik',
+    role: '4th Year',
+    skills: ['C++', 'Python', 'Back-end Development'],
+    projects: 5,
+    certifications: ['Certified C++ Developer', 'Python Expert'],
+    rating: 4.8,
+    image: defaultProfileImage,
+    rate: 80,
+  },
+  {
+    name: 'Sameer',
+    role: '1st Year',
+    skills: ['Photoshop', 'Illustrator', 'UI/UX Design'],
+    projects: 8,
+    certifications: ['Adobe Certified Expert'],
+    rating: 4.7,
+    image: defaultProfileImage,
+    rate: 60,
+  },
+  {
+    name: 'Satvik',
+    role: '2nd Year',
+    skills: ['R', 'Python', 'Machine Learning'],
+    projects: 4,
+    certifications: ['Certified Data Scientist'],
+    rating: 4.9,
+    image: defaultProfileImage,
+    rate: 90,
+  },
+  {
+    name: 'Madhava',
+    role: '1st Year',
+    skills: ['SEO', 'Content Marketing', 'Social Media'],
+    projects: 10,
+    certifications: ['Certified Digital Marketer'],
+    rating: 4.6,
+    image: defaultProfileImage,
+    rate: 50,
+  },
+  {
+    name: 'Madhan',
+    role: '1st year',
+    skills: ['Project Planning', 'Agile', 'Scrum'],
+    projects: 6,
+    certifications: ['PMP', 'Scrum Master'],
+    rating: 4.8,
+    image: defaultProfileImage,
+    rate: 85,
+  },
+  {
+    name: 'Grace Lee',
+    role: 'Mobile Developer',
+    skills: ['Swift', 'Kotlin', 'React Native'],
+    projects: 7,
+    certifications: ['Certified Mobile Developer'],
+    rating: 4.9,
+    image: defaultProfileImage,
+    rate: 70,
+  },
+  {
+    name: 'Henry Taylor',
+    role: 'Cybersecurity Expert',
+    skills: ['Network Security', 'Ethical Hacking', 'Penetration Testing'],
+    projects: 3,
+    certifications: ['Certified Ethical Hacker'],
+    rating: 4.7,
+    image: defaultProfileImage,
+    rate: 95,
+  },
+  {
+    name: 'Isabel Martinez',
+    role: 'Business Analyst',
+    skills: ['Data Analysis', 'Business Strategy', 'Requirements Gathering'],
+    projects: 9,
+    certifications: ['Certified Business Analyst'],
+    rating: 4.6,
+    image: defaultProfileImage,
+    rate: 65,
+  },
+  {
+    name: 'Jack Wilson',
+    role: 'DevOps Engineer',
+    skills: ['Docker', 'Kubernetes', 'CI/CD'],
+    projects: 4,
+    certifications: ['Certified Kubernetes Administrator'],
+    rating: 4.8,
+    image: defaultProfileImage,
+    rate: 90,
+  },
+  {
+    name: 'Karen Young',
+    role: 'Technical Writer',
+    skills: ['Documentation', 'Technical Writing', 'API Documentation'],
+    projects: 12,
+    certifications: ['Certified Technical Writer'],
+    rating: 4.9,
+    image: defaultProfileImage,
+    rate: 55,
+  },
+  {
+    name: 'Liam Harris',
+    role: 'Cloud Architect',
+    skills: ['AWS', 'Azure', 'GCP'],
+    projects: 5,
+    certifications: ['AWS Certified Solutions Architect'],
+    rating: 4.7,
+    image: defaultProfileImage,
+    rate: 100,
+  },
 ];
 
-function Dashboard() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [user, setUser] = useState({ displayName: '', skills: [], notifications: [] });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const Explore = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProfiles, setFilteredProfiles] = useState(profiles);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000); // Change image every 3 seconds
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    console.log(`Current index: ${currentIndex}`);
-    console.log(`Current image: ${images[currentIndex]}`);
-  }, [currentIndex]);
-
-  useEffect(() => {
-    const auth = getAuth();
-    const db = getFirestore();
-
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          const userData = userDoc.exists() ? userDoc.data() : { skills: [], notifications: [] };
-
-          setUser({
-            displayName: currentUser.displayName || 'User',
-            skills: userData.skills || [],
-            notifications: userData.notifications || []
-          });
-        } catch (err) {
-          console.error('Error fetching user data:', err);
-          setError('Failed to fetch user data.');
-        }
+    const handleScroll = () => {
+      const navbar = document.querySelector('.navbar');
+      let lastScrollTop = 0;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      if (scrollTop > lastScrollTop) {
+        navbar.classList.add('hidden');
       } else {
-        setUser(null);
-        setError('No user is signed in.');
+        navbar.classList.remove('hidden');
       }
-      setLoading(false);
-    });
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    };
 
-    return () => unsubscribe();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const handleSearch = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    if (query === '') {
+      setFilteredProfiles(profiles);
+    } else {
+      const filtered = profiles.filter(profile =>
+        profile.name.toLowerCase().includes(query) ||
+        profile.skills.some(skill => skill.toLowerCase().includes(query))
+      );
+      setFilteredProfiles(filtered);
+    }
+  };
 
   return (
-    <div className="dashboard">
+    <div className="explore">
       <nav className="navbar">
         <div className="navbar-brand">
           <Link to="/">EduSwap</Link>
@@ -81,39 +176,41 @@ function Dashboard() {
           <li><Link to="/logout">Logout</Link></li>
         </ul>
       </nav>
-      <header className="dashboard-header">
-        <h1>Welcome, {user.displayName}!</h1>
-        <div className="image-slider">
-          {images.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Slide ${index + 1}`}
-              className={index === currentIndex ? 'visible' : 'hidden'}
-            />
-          ))}
-        </div>
+      <header className="explore-header">
+        <h1>Explore Profiles</h1>
       </header>
-      <main className="dashboard-main">
-        <section className="dashboard-overview">
-          <h2>Your Skills</h2>
-          <ul>
-            {user.skills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))}
-          </ul>
-        </section>
-        <section className="dashboard-notifications">
-          <h2>Notifications</h2>
-          <ul>
-            {user.notifications.map((notification, index) => (
-              <li key={index}>{notification}</li>
-            ))}
-          </ul>
-        </section>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search for name or skills..."
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+        <button>Search</button>
+        <Link to="/advanced-search">Advanced Search</Link>
+      </div>
+      <main className="explore-main freelancers-container">
+        {filteredProfiles.map((profile, index) => (
+          <div key={index} className="freelancer-box">
+            <img src={profile.image} alt={`${profile.name}`} className="profile-image" onClick={() => alert(`Showing detailed profile for ${profile.name}`)} />
+            <h3>{profile.name}</h3>
+            <p>{profile.role}</p>
+            <div className="rating">{'⭐'.repeat(Math.floor(profile.rating))} ({profile.rating})</div>
+            <div className="skills">
+              {profile.skills.map((skill, i) => (
+                <span key={i} className="skill">{skill}</span>
+              ))}
+            </div>
+            <p><i className="fas fa-briefcase"></i> {profile.projects} completed projects</p>
+            <div className="buttons">
+              <button className="button view-profile" onClick={() => alert(`Showing detailed profile for ${profile.name}`)}>View Profile</button>
+              <button className="button hire-now">Request</button>
+            </div>
+          </div>
+        ))}
       </main>
     </div>
   );
-}
+};
 
-export default Dashboard;
+export default Explore;
