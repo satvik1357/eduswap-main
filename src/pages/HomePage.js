@@ -7,15 +7,14 @@ import '../styles/HomePage.css'; // Ensure the path is correct
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDTHV4JqbAHcwPJj73fwrOaYy0EvXr-Gy4",
-  authDomain: "eduswap-e77c1.firebaseapp.com",
-  databaseURL: "https://eduswap-e77c1-default-rtdb.firebaseio.com",
-
-  projectId: "eduswap-e77c1",
-  storageBucket: "eduswap-e77c1.appspot.com",
-  messagingSenderId: "1082655214516",
-  appId: "1:1082655214516:web:dab6b7de61ed76bc0180e1",
-  measurementId: "G-58ZWKKCQWP"
+  apiKey: "AIzaSyDFUli-CDl2U0qpOn43uh_tPJvG7pSSr-I",
+  authDomain: "eduswap-42359.firebaseapp.com",
+  databaseURL: "https://eduswap-42359-default-rtdb.firebaseio.com",
+  projectId: "eduswap-42359",
+  storageBucket: "eduswap-42359.appspot.com",
+  messagingSenderId: "745544145688",
+  appId: "1:745544145688:web:31c5c229da14fefad31c6d",
+  measurementId: "G-E5WRBEYCXQ"
 };
 
 // Initialize Firebase
