@@ -1,135 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import '../styles/Explore.css';
 import defaultProfileImage from '../images/default-profile.png';
 
-// Dummy data for demonstration
-const profiles = [
-  {
-    name: 'Ajay Kumar',
-    role: '3rd year',
-    skills: ['Java', 'Python', 'Front-end Development'],
-    projects: 2,
-    certifications: ['Certified React Developer', 'JavaScript Mastery'],
-    rating: 4.9,
-    image: defaultProfileImage,
-    rate: 75,
-  },
-  {
-    name: 'irfan Shaik',
-    role: '4th Year',
-    skills: ['C++', 'Python', 'Back-end Development'],
-    projects: 5,
-    certifications: ['Certified C++ Developer', 'Python Expert'],
-    rating: 4.8,
-    image: defaultProfileImage,
-    rate: 80,
-  },
-  {
-    name: 'Sameer',
-    role: '1st Year',
-    skills: ['Photoshop', 'Illustrator', 'UI/UX Design'],
-    projects: 8,
-    certifications: ['Adobe Certified Expert'],
-    rating: 4.7,
-    image: defaultProfileImage,
-    rate: 60,
-  },
-  {
-    name: 'Satvik',
-    role: '2nd Year',
-    skills: ['R', 'Python', 'Machine Learning'],
-    projects: 4,
-    certifications: ['Certified Data Scientist'],
-    rating: 4.9,
-    image: defaultProfileImage,
-    rate: 90,
-  },
-  {
-    name: 'Madhava',
-    role: '1st Year',
-    skills: ['SEO', 'Content Marketing', 'Social Media'],
-    projects: 10,
-    certifications: ['Certified Digital Marketer'],
-    rating: 4.6,
-    image: defaultProfileImage,
-    rate: 50,
-  },
-  {
-    name: 'Madhan',
-    role: '1st year',
-    skills: ['Project Planning', 'Agile', 'Scrum'],
-    projects: 6,
-    certifications: ['PMP', 'Scrum Master'],
-    rating: 4.8,
-    image: defaultProfileImage,
-    rate: 85,
-  },
-  {
-    name: 'Grace Lee',
-    role: 'Mobile Developer',
-    skills: ['Swift', 'Kotlin', 'React Native'],
-    projects: 7,
-    certifications: ['Certified Mobile Developer'],
-    rating: 4.9,
-    image: defaultProfileImage,
-    rate: 70,
-  },
-  {
-    name: 'Henry Taylor',
-    role: 'Cybersecurity Expert',
-    skills: ['Network Security', 'Ethical Hacking', 'Penetration Testing'],
-    projects: 3,
-    certifications: ['Certified Ethical Hacker'],
-    rating: 4.7,
-    image: defaultProfileImage,
-    rate: 95,
-  },
-  {
-    name: 'Isabel Martinez',
-    role: 'Business Analyst',
-    skills: ['Data Analysis', 'Business Strategy', 'Requirements Gathering'],
-    projects: 9,
-    certifications: ['Certified Business Analyst'],
-    rating: 4.6,
-    image: defaultProfileImage,
-    rate: 65,
-  },
-  {
-    name: 'Jack Wilson',
-    role: 'DevOps Engineer',
-    skills: ['Docker', 'Kubernetes', 'CI/CD'],
-    projects: 4,
-    certifications: ['Certified Kubernetes Administrator'],
-    rating: 4.8,
-    image: defaultProfileImage,
-    rate: 90,
-  },
-  {
-    name: 'Karen Young',
-    role: 'Technical Writer',
-    skills: ['Documentation', 'Technical Writing', 'API Documentation'],
-    projects: 12,
-    certifications: ['Certified Technical Writer'],
-    rating: 4.9,
-    image: defaultProfileImage,
-    rate: 55,
-  },
-  {
-    name: 'Liam Harris',
-    role: 'Cloud Architect',
-    skills: ['AWS', 'Azure', 'GCP'],
-    projects: 5,
-    certifications: ['AWS Certified Solutions Architect'],
-    rating: 4.7,
-    image: defaultProfileImage,
-    rate: 100,
-  },
-];
-
 const Explore = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredProfiles, setFilteredProfiles] = useState(profiles);
+  const [profiles, setProfiles] = useState([]);
+  const [filteredProfiles, setFilteredProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      const auth = getAuth();
+      const db = getFirestore();
+
+      onAuthStateChanged(auth, async (currentUser) => {
+        if (currentUser) {
+          try {
+            const usersCollection = collection(db, 'users');
+            const usersSnapshot = await getDocs(usersCollection);
+            const usersList = usersSnapshot.docs
+              .map(doc => ({ id: doc.id, ...doc.data() }))
+              .filter(user => user.id !== currentUser.uid);
+
+            // Assign random ratings
+            usersList.forEach(user => {
+              user.rating = (Math.random() * (5 - 4) + 4).toFixed(1);
+              user.image = defaultProfileImage;
+            });
+
+            setProfiles(usersList);
+            setFilteredProfiles(usersList);
+            setLoading(false);
+          } catch (err) {
+            console.error('Error fetching users:', err);
+            setError('Failed to fetch users.');
+            setLoading(false);
+          }
+        } else {
+          setError('No user is signed in.');
+          setLoading(false);
+        }
+      });
+    };
+
+    fetchProfiles();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -161,6 +80,14 @@ const Explore = () => {
       setFilteredProfiles(filtered);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="explore">
@@ -201,7 +128,7 @@ const Explore = () => {
                 <span key={i} className="skill">{skill}</span>
               ))}
             </div>
-            <p><i className="fas fa-briefcase"></i> {profile.projects} completed projects</p>
+            <p><i className="fas fa-briefcase"></i> {profile.projects ? profile.projects.length : 0} completed projects</p>
             <div className="buttons">
               <button className="button view-profile" onClick={() => alert(`Showing detailed profile for ${profile.name}`)}>View Profile</button>
               <button className="button hire-now">Request</button>
