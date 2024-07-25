@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../contexts/UserContext'; // Import UserContext
 import '../styles/HomePage.css'; // Ensure the path is correct
 
 // Firebase configuration
@@ -14,6 +15,7 @@ const firebaseConfig = {
   appId: "1:1082655214516:web:dab6b7de61ed76bc0180e1",
   measurementId: "G-58ZWKKCQWP"
 };
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -21,6 +23,7 @@ const provider = new GoogleAuthProvider();
 
 function HomePage() {
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext); // Use UserContext to set user
 
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, provider)
@@ -39,6 +42,7 @@ function HomePage() {
             });
         } else {
           console.log('User signed in: ', user);
+          setUser(user); // Set user in context
           navigate('/dashboard'); // Redirect to dashboard on successful login
         }
       })

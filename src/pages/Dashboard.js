@@ -1,16 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { UserContext } from '../contexts/UserContext'; // Import UserContext
 import '../styles/Dashboard.css'; // Ensure you have this CSS file
-
-// Dummy data for demonstration
-const user = {
-  name: 'Irfan',
-  skills: ['JavaScript', 'React', 'Node.js'],
-  notifications: [
-    'You have a new skill request!',
-    'Your skill exchange with Jane Doe has been approved.',
-  ],
-};
 
 const images = [
   '/images/EduSwap.png', // Replace with your image URLs
@@ -19,6 +10,7 @@ const images = [
 ];
 
 function Dashboard() {
+  const { user } = useContext(UserContext); // Use UserContext to get user
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -29,10 +21,9 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    console.log(`Current index: ${currentIndex}`);
-    console.log(`Current image: ${images[currentIndex]}`);
-  }, [currentIndex]);
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="dashboard">
@@ -49,7 +40,7 @@ function Dashboard() {
         </ul>
       </nav>
       <header className="dashboard-header">
-        <h1>Welcome, {user.name}!</h1>
+        <h1>Welcome, {user.displayName}!</h1>
         <div className="image-slider">
           {images.map((image, index) => (
             <img
@@ -64,19 +55,11 @@ function Dashboard() {
       <main className="dashboard-main">
         <section className="dashboard-overview">
           <h2>Your Skills</h2>
-          <ul>
-            {user.skills.map((skill, index) => (
-              <li key={index}>{skill}</li>
-            ))}
-          </ul>
+          {/* Add skills here */}
         </section>
         <section className="dashboard-notifications">
           <h2>Notifications</h2>
-          <ul>
-            {user.notifications.map((notification, index) => (
-              <li key={index}>{notification}</li>
-            ))}
-          </ul>
+          {/* Add notifications here */}
         </section>
       </main>
     </div>
