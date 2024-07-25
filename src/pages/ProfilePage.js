@@ -1,15 +1,24 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { UserContext } from '../contexts/UserContext'; // Import UserContext
 import '../styles/ProfilePage.css';
 import logo from '../images/logo.jpg'; // Update the path to your logo
 
 const ProfilePage = () => {
-  const { user } = useContext(UserContext); // Use UserContext to get user
-
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  // Dummy profile data
+  const profile = {
+    name: 'Irfan',
+    title: 'Btech 3rd Year',
+    skills: ['JavaScript', 'React', 'Node.js'],
+    experience: [
+      { role: 'Frontend Developer', company: 'Company A', duration: 'Jan 2020 - Dec 2022' },
+      { role: 'Backend Developer', company: 'Company B', duration: 'Jan 2018 - Dec 2019' }
+    ],
+    certifications: ['Certified React Developer', 'AWS Certified Solutions Architect'],
+    projects: [
+      { title: 'Project A', description: 'A project description' },
+      { title: 'Project B', description: 'Another project description' }
+    ]
+  };
 
   return (
     <div className="profile-page">
@@ -31,26 +40,46 @@ const ProfilePage = () => {
             <img src={logo} alt="Profile" className="profile-image" />
           </div>
           <div className="profile-info">
-            <h1>{user.displayName}</h1>
-            <h2>{user.email}</h2>
+            <h1>{profile.name}</h1>
+            <h2>{profile.title}</h2>
           </div>
         </header>
         <main className="profile-main">
           <section className="profile-section">
             <h3>Skills</h3>
-            {/* Add skills here */}
+            <ul>
+              {profile.skills.map((skill, index) => (
+                <li key={index}>{skill}</li>
+              ))}
+            </ul>
           </section>
           <section className="profile-section">
             <h3>Experience</h3>
-            {/* Add experience here */}
+            <ul>
+              {profile.experience.map((exp, index) => (
+                <li key={index}>
+                  <strong>{exp.role}</strong> at <em>{exp.company}</em> ({exp.duration})
+                </li>
+              ))}
+            </ul>
           </section>
           <section className="profile-section">
             <h3>Certifications</h3>
-            {/* Add certifications here */}
+            <ul>
+              {profile.certifications.map((cert, index) => (
+                <li key={index}>{cert}</li>
+              ))}
+            </ul>
           </section>
           <section className="profile-section">
             <h3>Projects</h3>
-            {/* Add projects here */}
+            <ul>
+              {profile.projects.map((proj, index) => (
+                <li key={index}>
+                  <strong>{proj.title}</strong>: {proj.description}
+                </li>
+              ))}
+            </ul>
           </section>
         </main>
       </div>
