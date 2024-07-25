@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import '../styles/ProfilePage.css';
-import logo from '../images/logo.jpg'; // Update the path to your logo
+import logo from '../images/logo.jpg'; 
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
