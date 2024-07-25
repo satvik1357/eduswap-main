@@ -1,132 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import '../styles/ProfilePage.css';
-import logo from '../images/logo.jpg'; 
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+import '../styles/ProfileSetup.css'; // Ensure you have this CSS file
 
-const ProfilePage = () => {
-  const [profile, setProfile] = useState({
-    name: '',
-    title: '',
-    skills: [],
-    experience: [],
-    certifications: [],
-    projects: []
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const db = getFirestore();
 
-  useEffect(() => {
+const ProfileSetup = () => {
+  const [skills, setSkills] = useState([]);
+  const [branch, setBranch] = useState('');
+  const [year, setYear] = useState('');
+  const [newSkill, setNewSkill] = useState('');
+  const [name, setName] = useState('');
+  const [experience, setExperience] = useState('');
+  const [certifications, setCertifications] = useState('');
+  const [projects, setProjects] = useState('');
+  const navigate = useNavigate();
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() !== '') {
+      setSkills([...skills, newSkill]);
+      setNewSkill('');
+    }
+  };
+
+  const handleCompleteProfile = async () => {
     const auth = getAuth();
-    const db = getFirestore();
+    const user = auth.currentUser;
 
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setProfile({
-              name: currentUser.displayName || 'User',
-              title: userData.title || '',
-              skills: userData.skills || [],
-              experience: userData.experience || [],
-              certifications: userData.certifications || [],
-              projects: userData.projects || []
-            });
-          } else {
-            setError('Profile data not found.');
-          }
-        } catch (err) {
-          console.error('Error fetching user data:', err);
-          setError('Failed to fetch user data.');
-        }
-      } else {
-        setProfile(null);
-        setError('No user is signed in.');
+    if (user) {
+      const userRef = doc(db, 'users', user.uid);
+      try {
+        await updateDoc(userRef, {
+          name,
+          skills,
+          branch,
+          year,
+          experience,
+          certifications,
+          projects,
+          profileComplete: true
+        });
+        navigate('/dashboard'); // Redirect to Dashboard on completion
+      } catch (error) {
+        console.error('Error updating profile: ', error);
+        alert('Failed to update profile. Please try again.');
       }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+    } else {
+      console.error('No user is signed in');
+      alert('No user is signed in. Please sign in again.');
+    }
+  };
 
   return (
-    <div className="profile-page">
+    <div className="profile-setup-page">
       <nav className="navbar">
         <div className="navbar-brand">
-          <Link to="/">EduSwap</Link>
+          <a href="/">EduSwap</a>
         </div>
-        <ul className="navbar-nav">
-          <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><Link to="/explore">Explore</Link></li>
-          <li><Link to="/profile">Profile</Link></li>
-          <li><Link to="/settings">Settings</Link></li>
-          <li><Link to="/logout">Logout</Link></li>
+        <ul className="navbar-links">
+          <li><a className="navbar-link" href="/">Home</a></li>
+          <li><a className="navbar-link" href="/about">About</a></li>
+          <li><a className="navbar-link" href="/contact">Contact</a></li>
         </ul>
       </nav>
-      <div className="profile-content">
-        <header className="profile-header">
-          <div className="profile-image-container">
-            <img src={logo} alt="Profile" className="profile-image" />
-          </div>
-          <div className="profile-info">
-            <h1>{profile.name}</h1>
-            <h2>{profile.title}</h2>
-          </div>
-        </header>
-        <main className="profile-main">
-          <section className="profile-section">
-            <h3>Skills</h3>
-            <ul>
-              {profile.skills.map((skill, index) => (
-                <li key={index}>{skill}</li>
-              ))}
-            </ul>
-          </section>
-          <section className="profile-section">
-            <h3>Experience</h3>
-            <ul>
-              {profile.experience.map((exp, index) => (
-                <li key={index}>
-                  <strong>{exp.role}</strong> at <em>{exp.company}</em> ({exp.duration})
-                </li>
-              ))}
-            </ul>
-          </section>
-          <section className="profile-section">
-            <h3>Certifications</h3>
-            <ul>
-              {profile.certifications.map((cert, index) => (
-                <li key={index}>{cert}</li>
-              ))}
-            </ul>
-          </section>
-          <section className="profile-section">
-            <h3>Projects</h3>
-            <ul>
-              {profile.projects.map((proj, index) => (
-                <li key={index}>
-                  <strong>{proj.title}</strong>: {proj.description}
-                </li>
-              ))}
-            </ul>
-          </section>
-        </main>
+      <div className="profile-setup">
+        <h2>Complete Your Profile</h2>
+        <label>
+          Name:
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Branch:
+          <input
+            type="text"
+            value={branch}
+            onChange={(e) => setBranch(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Year:
+          <input
+            type="text"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Skills:
+          <input
+            type="text"
+            value={newSkill}
+            onChange={(e) => setNewSkill(e.target.value)}
+          />
+          <button type="button" onClick={handleAddSkill}>Add</button>
+        </label>
+        <ul>
+          {skills.map((skill, index) => (
+            <li key={index}>{skill}</li>
+          ))}
+        </ul>
+        <label>
+          Experience:
+          <input
+            type="text"
+            value={experience}
+            onChange={(e) => setExperience(e.target.value)}
+          />
+        </label>
+        <label>
+          Certifications:
+          <input
+            type="text"
+            value={certifications}
+            onChange={(e) => setCertifications(e.target.value)}
+          />
+        </label>
+        <label>
+          Projects:
+          <input
+            type="text"
+            value={projects}
+            onChange={(e) => setProjects(e.target.value)}
+          />
+        </label>
+        <button type="button" onClick={handleCompleteProfile}>Complete</button>
       </div>
     </div>
   );
 };
 
-export default ProfilePage;
+export default ProfileSetup;
