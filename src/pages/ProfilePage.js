@@ -1,24 +1,66 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import '../styles/ProfilePage.css';
 import logo from '../images/logo.jpg'; // Update the path to your logo
 
 const ProfilePage = () => {
-  // Dummy profile data
-  const profile = {
-    name: 'Irfan',
-    title: 'Btech 3rd Year',
-    skills: ['JavaScript', 'React', 'Node.js'],
-    experience: [
-      { role: 'Frontend Developer', company: 'Company A', duration: 'Jan 2020 - Dec 2022' },
-      { role: 'Backend Developer', company: 'Company B', duration: 'Jan 2018 - Dec 2019' }
-    ],
-    certifications: ['Certified React Developer', 'AWS Certified Solutions Architect'],
-    projects: [
-      { title: 'Project A', description: 'A project description' },
-      { title: 'Project B', description: 'Another project description' }
-    ]
-  };
+  const [profile, setProfile] = useState({
+    name: '',
+    title: '',
+    skills: [],
+    experience: [],
+    certifications: [],
+    projects: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const db = getFirestore();
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setProfile({
+              name: currentUser.displayName || 'User',
+              title: userData.title || '',
+              skills: userData.skills || [],
+              experience: userData.experience || [],
+              certifications: userData.certifications || [],
+              projects: userData.projects || []
+            });
+          } else {
+            setError('Profile data not found.');
+          }
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+          setError('Failed to fetch user data.');
+        }
+      } else {
+        setProfile(null);
+        setError('No user is signed in.');
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="profile-page">
